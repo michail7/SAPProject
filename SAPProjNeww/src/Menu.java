@@ -1,13 +1,14 @@
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
 
 
-public class Menu implements IFileManager, IRoleChecker, IBookManager, IBookRegistry, IMenuManager, IEmployeeManager, IClientsManager{
+public class Menu implements IFileManager, IRoleChecker, IBookManager, IMenuManager, IEmployeeManager, IClientsManager{
 	private Scanner input = new Scanner(System.in);
 	private final static String usersPath = "file.txt";
 	private final static String bookPath = "books.txt";
@@ -182,7 +183,7 @@ public class Menu implements IFileManager, IRoleChecker, IBookManager, IBookRegi
 	}
 
 	@Override
-	public void addBook(Book book) throws IOException{
+	public void addBook(Book book) throws BookNotFoundException, IOException{
 		//String[] splitter = book.toString().split("[*]+");
 		File file = new File(bookPath);
 		Scanner fileReader = new Scanner(new FileReader(file));
@@ -198,6 +199,8 @@ public class Menu implements IFileManager, IRoleChecker, IBookManager, IBookRegi
 			writer.close();
 		}catch(IOException e){
 			System.out.println("file" + bookPath + "cannot be written");
+		}catch(Exception e){
+			e.printStackTrace();
 		}
 	}
 
@@ -271,6 +274,7 @@ public class Menu implements IFileManager, IRoleChecker, IBookManager, IBookRegi
 				System.out.println("Enter username and password");
 				String creditentials = input.nextLine();
 				String[] splitter = creditentials.split("[ ]");
+				@SuppressWarnings("unused")
 				User emp = null;
 				for(int i = 0; i < splitter.length; i++){
 					emp = new User(splitter[i], splitter[i+1]);

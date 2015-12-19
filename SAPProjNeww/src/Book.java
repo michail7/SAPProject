@@ -5,31 +5,32 @@ public class Book{
 	private String bookGenre;
 	private int numberOfPages;
 	private String year;
-	private String ISBN;
+	private String isbn;
+	private final static String PATTERN = "^[A-Z][a-z]&{2-25}";
 	
 	public Book(){
 		
 	}
-	public Book(String bookTitle, String bookAuthor, String bookGenre, int numberOfPages, String year, String ISBN){
+	public Book(String bookTitle, String bookAuthor, String bookGenre, int numberOfPages, String year, String isbn){
 		setTitle(bookTitle);
 		setAuthor(bookAuthor);
 		setGenre(bookGenre);
 		setPages(numberOfPages);
 		setYear(year);
-		setISBN(ISBN);
+		setISBN(isbn);
 	}
 	public void setTitle(String bookTitle){
-		if(bookTitle.matches("^[A-Z][a-z]&{2-25}")){
+		if(bookTitle.matches(PATTERN)){
 			this.bookTitle = bookTitle;
 		}
 	}
 	public void setAuthor(String bookAuthor){
-		if(bookAuthor.matches("^[A-Z][a-z]&{2-25}")){
+		if(bookAuthor.matches(PATTERN)){
 			this.bookAuthor = bookAuthor;
 		}
 	}
 	public void setGenre(String bookGenre){
-		if(bookGenre.matches("^[A-Z][a-z]&{2-25}")){
+		if(bookGenre.matches(PATTERN)){
 			this.bookGenre = bookGenre;
 		}
 	}
@@ -43,14 +44,14 @@ public class Book{
 			this.year = year;
 		}
 	}
-	public void setISBN(String ISBN){
-		if(ISBN.matches("[0-9-]{10-13}")){
-			this.ISBN = ISBN;
+	public void setISBN(String isbn){
+		if(isbn.matches(PATTERN)){
+			this.isbn = isbn;
 		}
 	}
 	
 	@Override
 	public String toString(){
-		return bookTitle + "***" + bookAuthor + "***" + bookGenre + "***" + numberOfPages + "***" + year + "***" + ISBN;
+		return bookTitle + "***" + bookAuthor + "***" + bookGenre + "***" + numberOfPages + "***" + year + "***" + isbn;
 	}
 }
