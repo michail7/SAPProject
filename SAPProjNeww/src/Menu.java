@@ -106,16 +106,14 @@ public class Menu implements IFileManager, IRoleChecker, IBookManager, IMenuMana
 				bookMenu();
 				break;
 			case 2:
-				/*
-				 * employeeMenu();
-				 */
+				employeeMenu();
 				break;
 				default:
 					System.out.println("Press a key 1 - 3");
 			}
 
 		}while(choice != 3);
-		Runtime.getRuntime().exec("cls"); // and "clear" too  
+		Runtime.getRuntime().exec("cls"); 
 		menu();
 	}
 	public void bookMenu() throws Exception{
@@ -190,9 +188,6 @@ public class Menu implements IFileManager, IRoleChecker, IBookManager, IMenuMana
 		BufferedWriter writer = new BufferedWriter(new FileWriter(file));
 		try{
 			while(!fileReader.hasNextLine()){
-//				for(int i = 0; i < splitter.length; i++){
-//					writer.write(book);
-//				}
 				writer.write(book.toString());
 			}
 			fileReader.close();
@@ -250,7 +245,7 @@ public class Menu implements IFileManager, IRoleChecker, IBookManager, IMenuMana
 
 	@Override
 	public Book getBook(String title) {
-		String allData = readFile(bookPath);// TODO Auto-generated method stub
+		String allData = readFile(bookPath);
 		String[] splitter = allData.split("[*\n]+");
 		Book book = null;
 		for(int i = 0; i < splitter.length; i++){
