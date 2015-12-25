@@ -6,93 +6,157 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
+class CheckClient extends ClientManager{
+	private String username;
+	private String newUsername;
+	public CheckClient(){
+		
+	}
+	public CheckClient(String username){
+		this.username = username;
+	}
+	public CheckClient(String username, String newUsername){
+		this.username = username;
+		this.newUsername = newUsername;
+	}
+	void addCl(String username){
+		addClient(username);
+	}
+	void readCls(){
+		readClients();
+	}
+	void updateCl(String username, String newUsername){
+		updateClient(username, newUsername);
+	}
+	void deleteCl(String username){
+		deleteClient(username);
+	}
+}
 
-
-public class Menu implements IFileManager, IRoleChecker, IBookManager, IMenuManager, IEmployeeManager, IClientsManager{
-	private Scanner input = new Scanner(System.in);
-	private final static String usersPath = "file.txt";
-	private final static String bookPath = "books.txt";
-	private final static String employeePath = "employees.txt";
-	private final static String clientPath = "clients.txt";
+class CheckBook extends BookManager{
+	String title;
+	String author;
+	String genre;
+	int pages;
+	String year;
+	String isbn;
+	public CheckBook(){
+		
+	}
+	public CheckBook(String title, String author, String genre, int pages, String year, String isbn){
+		this.title = title;
+		this.author = author;
+		this.genre = genre;
+		this.pages = pages;
+		this.year = year;
+		this.isbn = isbn;
+	}
+	public void createBook(){
+		try {
+			addBook(new Book(title, author, genre, pages, year, isbn));
+		} catch (BookNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	public void readBook(String title){
+		try{
+			getBook(title);
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	public void update(String title, Book b1){
+		try{
+			updateBook(title, b1);
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	public void delete(String title){
+		try{
+			deleteBook(title);
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	public String toString(){
+		return title;
+	}
+}
+class EmployeeChecker extends EmployeeManager{
+	private User employee;
 	
+	public EmployeeChecker(){
+	}
+	
+	public EmployeeChecker(User employee){
+		this.employee = employee;
+	}
+	void addEmpl(User employee){
+		addEmployee(employee);
+	} 
+	void getEmpl(String username){
+		getEmployee(username);
+	}
+	void updateEmpl(String username, User employee){
+		updateEmployee(username, employee);
+	}
+	void deleteEmpl(String username){
+		deleteEmployee(username);
+	}
+}
+
+public class Menu implements IMenuManager{
+	private Scanner input = new Scanner(System.in);
+	
+
 	public void menu() throws Exception{
 		System.out.println("Enter username");
 		String username = input.nextLine();
 		System.out.println("Enter password");
 		String password = input.nextLine();
-		if(isInRole(username, password) && isUserInRole(username).equals("ADMINISTRATOR")){
-			adminMenu();
-		}else if(isInRole(username, password) && isUserInRole(username).equals("EMPLOYEE")){
-			employeesMenu();
-		}
-	}
-
-	@Override
-	public String readFile(String fileName) {
-		StringBuilder sb = new StringBuilder();
-		try {
+		
+		class CheckRoles extends RoleChecker{
+			private String username;
+			private String password;
 			
-			FileReader fileReader = new FileReader(usersPath);
-			
-			BufferedReader bufferedReader = new BufferedReader(fileReader);
-			
-			while (bufferedReader.ready()) {
-					String line = bufferedReader.readLine();
-					sb.append(line);
-					sb.append("\n");
+			public CheckRoles(String username, String password){
+				this.username = username;
+				this.password = password;
 			}
-			bufferedReader.close();			
 			
-		} catch (Exception e) {
-			System.out.println("Error while reading a file.");
-			System.out.println(e.getMessage());
-			System.exit(0);
-		}
-		return sb.toString();
-	}
-
-	@Override
-	public void writeToFile(String fileName, String line) {
-		try {			
-			FileWriter fileStream = new FileWriter(usersPath, true);
-			
-			BufferedWriter writer = new BufferedWriter(fileStream);		
-			
-			writer.write(line);
-			writer.newLine();
-			writer.close();
-			
-		} catch (Exception e) {
-			System.out.println("Error while writing a file.");
-			System.out.println(e.getMessage());
-			System.exit(0);
-		}
-	}
-
-	@Override
-	public boolean isInRole(String username, String password) {
-		String allData = readFile(usersPath);
-		String[] splitter = allData.split("[*\n]+");
-		for(int i = 0; i < splitter.length; i++){
-			if(splitter[i].equals(username) && splitter[i+1].equals(password)){
-				return true;
+			void Checker(){
+				try {
+					if((isInRole(username, password) == true) && isUserInRole(username).equals("ADMINISTRATOR")){
+						try {
+							adminMenu();
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					}else if(isInRole(username, password) && isUserInRole(username).equals("EMPLOYEE")){
+						try {
+							employeesMenu();
+						} catch (InvalidCreditentialsException e) {
+							e.printStackTrace();
+						} catch (IOException e) {
+							e.printStackTrace();
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					}
+				} catch (InvalidCreditentialsException e) {
+					e.printStackTrace();
+				}
 			}
+			
 		}
-		return false;
+		CheckRoles p = new CheckRoles(username, password);
+		p.Checker();
 	}
-
-	@Override
-	public String isUserInRole(String username)
-			throws InvalidCreditentialsException {
-		String allData = readFile(usersPath);
-		String[] splitter = allData.split("[*\n]");
-		for(int i = 0; i < splitter.length; i++){
-			if(splitter[i].equals(username)){
-				return splitter[3];
-			}
-		}
-		return null;
-	}
+	
+	
 	public void adminMenu() throws Exception{
 		int choice;
 		System.out.println("1. Books");
@@ -118,6 +182,7 @@ public class Menu implements IFileManager, IRoleChecker, IBookManager, IMenuMana
 	}
 	public void bookMenu() throws Exception{
 		int choice;
+		CheckBook ch = new CheckBook();
 		System.out.println("1. Create book");
 		System.out.println("2. Read book");
 		System.out.println("3. Update book");
@@ -139,7 +204,8 @@ public class Menu implements IFileManager, IRoleChecker, IBookManager, IMenuMana
 				String year = input.nextLine();
 				System.out.println("Enter ISBN");
 				String ISBN = input.nextLine();
-				addBook(new Book(title, author, genre, pages, year, ISBN));
+				ch = new CheckBook(title, author, genre, pages, year, ISBN);
+				ch.createBook();
 				System.out.println("Done");
 				Runtime.getRuntime().exec("cls");
 				bookMenu();
@@ -147,7 +213,8 @@ public class Menu implements IFileManager, IRoleChecker, IBookManager, IMenuMana
 			case 2:
 				System.out.println("Enter title");
 				String bookTitle = input.nextLine();
-				System.out.println(getBook(bookTitle).toString());
+				ch.readBook(bookTitle);
+				System.out.printf("%s", bookTitle);
 				Runtime.getRuntime().exec("cls");
 				bookMenu();
 				break;
@@ -161,7 +228,7 @@ public class Menu implements IFileManager, IRoleChecker, IBookManager, IMenuMana
 				for(int i = 0; i < split.length; i++){
 					b1 = new Book(split[i], split[i+1], split[i+2], Integer.parseInt(split[i+3]), split[i+4], split[i+5]);
 				}
-				updateBook(btitle, b1);
+				ch.updateBook(btitle, b1);
 				System.out.println("Done!");
 				Runtime.getRuntime().exec("cls");
 				bookMenu();
@@ -169,7 +236,7 @@ public class Menu implements IFileManager, IRoleChecker, IBookManager, IMenuMana
 			case 4:
 				System.out.println("Enter title");
 				String _title = input.nextLine();
-				deleteBook(_title);
+				ch.deleteBook(_title);
 				System.out.println("Done!");
 				Runtime.getRuntime().exec("cls");
 				bookMenu();
@@ -180,79 +247,7 @@ public class Menu implements IFileManager, IRoleChecker, IBookManager, IMenuMana
 		}while(true);
 	}
 
-	@Override
-	public void addBook(Book book) throws BookNotFoundException, IOException{
-		//String[] splitter = book.toString().split("[*]+");
-		File file = new File(bookPath);
-		Scanner fileReader = new Scanner(new FileReader(file));
-		BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-		try{
-			while(!fileReader.hasNextLine()){
-				writer.write(book.toString());
-			}
-			fileReader.close();
-			writer.close();
-		}catch(IOException e){
-			System.out.println("file" + bookPath + "cannot be written");
-		}catch(Exception e){
-			e.printStackTrace();
-		}
-	}
-
-	@Override
-	public void updateBook(String title, Book book) {
-		String allData = readFile(bookPath);
-		String[] splitter = allData.split("[*\n]+");
-		String[] spl = book.toString().split("[*]+");
-		StringBuilder b = new StringBuilder();
-		try{
-			@SuppressWarnings("resource")
-			BufferedWriter writer = new BufferedWriter(new FileWriter(bookPath));
-			for(int i = 0; i < splitter.length; i++){
-				if(!splitter[i].equals(title)){
-					for(String spltr:spl){
-						b.append(spltr);
-					}
-					writer.write(b.toString());
-				}
-			}
-			writer.close();
-		}catch(IOException e){
-			System.out.println("File" + bookPath + " cannot be writter");
-		}
-	}
-
-	@Override
-	public void deleteBook(String title) {
-		String allData = readFile(bookPath);
-		String[] splitter = allData.split("[*\n]+");
-		StringBuilder strb = new StringBuilder();
-		try{
-			BufferedWriter writer = new BufferedWriter(new FileWriter(bookPath));
-			for(int i = 0; i < splitter.length; i++){
-				if(!splitter[i].equals(title)){
-					for(String spl : splitter){
-						strb.append(spl);
-					}
-					writer.append(strb.toString());
-				}
-			}
-			writer.close();
-		}catch(Exception e){
-			e.printStackTrace();
-		}
-	}
-
-	@Override
-	public Book getBook(String title) {
-		String allData = readFile(bookPath);
-		String[] splitter = allData.split("[*\n]+");
-		Book book = null;
-		for(int i = 0; i < splitter.length; i++){
-			book = new Book(splitter[i], splitter[i+1], splitter[i+2], Integer.parseInt(splitter[i+3]), splitter[i+4], splitter[i+5]);
-		}
-		return book;
-	}
+	
 
 	@Override
 	public void employeeMenu() throws Exception {
@@ -280,7 +275,8 @@ public class Menu implements IFileManager, IRoleChecker, IBookManager, IMenuMana
 				break;
 			case 2:
 				int ch;
-				getEmployee();
+				EmployeeChecker empCh = new EmployeeChecker();
+				empCh.getEmpl(EmployeeManager.employeePath);
 				System.out.println("1. Go back");
 				ch = input.nextInt();
 					if(ch == 1){
@@ -297,7 +293,8 @@ public class Menu implements IFileManager, IRoleChecker, IBookManager, IMenuMana
 				for(int i = 0; i < userNPass.length; i++){
 					u1 = new User(userNPass[i].trim(), userNPass[i+1].trim());
 				}
-				updateEmployee(uName, u1);
+				EmployeeChecker empl = new EmployeeChecker();
+				empl.updateEmpl(uName, u1);
 				System.out.println("Done!");
 				Runtime.getRuntime().exec("cls");
 				employeeMenu();
@@ -305,7 +302,8 @@ public class Menu implements IFileManager, IRoleChecker, IBookManager, IMenuMana
 			case 4:
 				System.out.println("Enter username");
 				String _username = input.nextLine();
-				deleteEmployee(_username);
+				EmployeeChecker emplC = new EmployeeChecker();
+				emplC.deleteEmpl(_username);
 				Runtime.getRuntime().exec("cls");
 				employeeMenu();
 				break;
@@ -313,95 +311,7 @@ public class Menu implements IFileManager, IRoleChecker, IBookManager, IMenuMana
 		}while(choice != 5);
 	}
 
-	@Override
-	public void addEmployee(User user) {
-		String[] splitter = user.toString().split("[*]+");
-		try{
-			Scanner reader = new Scanner(new FileReader(employeePath));
-			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(employeePath)));
-			StringBuilder bld = new StringBuilder();
-			while(!reader.hasNextLine()){
-				for(int i = 0; i < splitter.length; i++){
-					writer.write(
-							bld.append(splitter[i])
-							+ "\n");
-				}
-			}
-			reader.close();
-			writer.close();
-		}catch(IOException ioe){
-			System.out.println("File "  + employeePath + " cannot be writen");
-		}catch(Exception e){
-			e.printStackTrace();
-		}
-		
-	}
-
-	@Override
-	public void getEmployee() {
-		String allData = readFile(employeePath);
-		String[] splitter = allData.split("[*\n]+");
-		for(int i = 0; i < splitter.length; i++){
-			System.out.printf("%d %s",i, splitter[i].trim());
-		}
-	}
-
-	@Override
-	public void updateEmployee(String username, User user) {
-		String line = null;
-		StringBuilder bld = new StringBuilder();
-		try{
-			Scanner fileRead = new Scanner(new FileReader(employeePath));
-			BufferedWriter writer = new BufferedWriter(new FileWriter(employeePath));
-			while(fileRead.hasNextLine()){
-				line = fileRead.nextLine();
-				String[] splitter = line.split("[*]+");
-				for(int i = 0; i < splitter.length; i++){
-					if(splitter[i].trim().equals(username)){
-						continue;
-					}
-				}bld.append(line);
-				bld.append("\n");
-				writer.write(bld.toString());
-			}
-			writer.append(user.toString());
-			fileRead.close();
-			writer.close();
-		}catch(IOException ioe){
-			System.out.println("File "  + employeePath + " cannot be written");
-		}catch(Exception e){
-			e.printStackTrace();
-		}
-		
-	}
-
-	@Override
-	public void deleteEmployee(String username) {
-		String line = null;
-		StringBuilder bld = new StringBuilder();
-		try{
-			Scanner fileRead = new Scanner(new FileReader(employeePath));
-			@SuppressWarnings("resource")
-			BufferedWriter writer = new BufferedWriter(new FileWriter(employeePath));
-			while(fileRead.hasNextLine()){
-				line = fileRead.nextLine();
-				String[] splitter = line.split("[*]+");
-				for(int i = 0; i < splitter.length; i++){
-					if(splitter[i].trim().equals(username)){
-						continue;
-					}
-				}bld.append(line);
-				bld.append("\n");
-				writer.write(bld.toString());
-			}
-			fileRead.close();
-			fileRead.close();
-		}catch(IOException ioe){
-			System.out.println("File " + employeePath + " could not be opened for I/O");
-		}catch(Exception e){
-			e.printStackTrace();
-		}
-	}
+	
 
 	@Override
 	public void employeesMenu() throws InvalidCreditentialsException,
@@ -413,10 +323,11 @@ public class Menu implements IFileManager, IRoleChecker, IBookManager, IMenuMana
 		do{
 			switch(choice){
 			case 1:
-				readBook();
+				CheckBook ch = new CheckBook();
+				ch.readBook();
 				System.out.println("Enter title");
 				String title = input.nextLine();
-				getBook(title);
+				ch.getBook(title);
 				Runtime.getRuntime().exec("cls");
 				System.out.println("Done!");
 				Runtime.getRuntime().exec("cls");
@@ -430,104 +341,12 @@ public class Menu implements IFileManager, IRoleChecker, IBookManager, IMenuMana
 		
 		
 	}
-
-	@Override
-	public void readBook() {
-		String allData = readFile(bookPath);
-		String[] splitter = allData.split("[*]+");
-		for(int i = 0; i < splitter.length; i++){
-			System.out.printf("%d %s", i, splitter[i].trim());
-		}
-	}
-
-	@Override
-	public void addClient(String username) {
-		try{
-			BufferedWriter writer = new BufferedWriter(new FileWriter(clientPath));
-			Scanner fileRead = new Scanner(new FileReader(clientPath));
-			while(!fileRead.hasNext()){
-				writer.append(username);
-			}
-			writer.close();
-			fileRead.close();
-		}catch(IOException ioe){
-			System.out.println("File " + clientPath + " cannot be opened");
-		}catch(Exception e){
-			e.printStackTrace();
-		}
-		
-	}
-
-	@Override
-	public void readClients() {
-		String[] allData = readFile(clientPath)
-				.split("[*\n]+");
-		for(int i = 0; i < allData.length; i++){
-			System.out.printf("%d %s", i, allData[i].trim());
-		}
-		
-	}
-
-	@Override
-	public void updateClient(String username, String newUsername) {
-		String line = null;
-		StringBuilder bld = new StringBuilder();
-		try{
-			Scanner fileRead = new Scanner(new FileReader(clientPath));
-			BufferedWriter writer = new BufferedWriter(new FileWriter(clientPath));
-			while(fileRead.hasNextLine()){
-				line = fileRead.nextLine();
-				String[] splitter = line.split("[*]+");
-				for(int i = 0; i < splitter.length; i++){
-					if(splitter[i].trim().equals(username)){
-						continue;
-					}
-				}bld.append(line);
-				bld.append("\n");
-				writer.write(bld.toString());
-			}
-			writer.append(username);
-			fileRead.close();
-			writer.close();
-		}catch(IOException ioe){
-			System.out.println("File "  + clientPath + " cannot be written");
-		}catch(Exception e){
-			e.printStackTrace();
-		}
-	}
-
-	@Override
-	public void deleteClient(String username) {
-		String line = null;
-		StringBuilder bld = new StringBuilder();
-		try{
-			Scanner fileRead = new Scanner(new FileReader(clientPath));
-			@SuppressWarnings("resource")
-			BufferedWriter writer = new BufferedWriter(new FileWriter(clientPath));
-			while(fileRead.hasNextLine()){
-				line = fileRead.nextLine();
-				String[] splitter = line.split("[*]+");
-				for(int i = 0; i < splitter.length; i++){
-					if(splitter[i].trim().equals(username)){
-						continue;
-					}
-				}bld.append(line);
-				bld.append("\n");
-				writer.write(bld.toString());
-			}
-			fileRead.close();
-			fileRead.close();
-		}catch(IOException ioe){
-			System.out.println("File " + employeePath + " could not be opened for I/O");
-		}catch(Exception e){
-			e.printStackTrace();
-		}
-		
-	}
+	
 
 	@Override
 	public void clientsMenu() throws InvalidCreditentialsException,
 			IOException, Exception {
+		CheckClient ch = new CheckClient();
 		System.out.println("1. Add client");
 		System.out.println("2. List of clients");
 		System.out.println("3. Update client");
@@ -539,13 +358,15 @@ public class Menu implements IFileManager, IRoleChecker, IBookManager, IMenuMana
 			case 1:
 				System.out.println("Enter username");
 				String uName = input.nextLine();
-				addClient(uName);
+				ch = new CheckClient(uName);
+				ch.addCl(uName);
 				System.out.println("Done!");
 				Runtime.getRuntime().exec("cls");
 				clientsMenu();
 				break;
 			case 2:
-				readClients();
+				ch = new CheckClient();
+				ch.readCls();
 				System.out.println("Done");
 				Runtime.getRuntime().exec("cls");
 				clientsMenu();
@@ -555,7 +376,8 @@ public class Menu implements IFileManager, IRoleChecker, IBookManager, IMenuMana
 				String _1name = input.nextLine();
 				System.out.println("Enter new username");
 				String _2name = input.nextLine();
-				updateClient(_1name, _2name);
+				ch = new CheckClient(_1name, _2name);
+				ch.updateCl(_1name, _2name);
 				Runtime.getRuntime().exec("cls");
 				System.out.println("Done!");
 				clientsMenu();
@@ -563,7 +385,8 @@ public class Menu implements IFileManager, IRoleChecker, IBookManager, IMenuMana
 			case 4:
 				System.out.println("Enter username");
 				String username = input.nextLine();
-				deleteClient(username);
+				ch = new CheckClient(username);
+				ch.deleteCl(username);
 				Runtime.getRuntime().exec("cls");
 				System.out.println("Done!");
 				clientsMenu();
@@ -573,5 +396,4 @@ public class Menu implements IFileManager, IRoleChecker, IBookManager, IMenuMana
 		Runtime.getRuntime().exec("cls");
 		employeesMenu();
 	}
-	
 }
