@@ -7,8 +7,13 @@ public class RoleChecker extends FileManager implements IRoleChecker{
 		String allData = readFile(usersPath);
 		String[] splitter = allData.split("[*\n]+");
 		for(int i = 0; i < splitter.length; i++){
-			if(splitter[i].equals(username) && splitter[i+1].equals(password)){
-				return true;
+			try {
+				if(splitter[i].equals(username) && splitter[i+1].equals(AESencrp.encrypt(password))){
+					return true;
+				}
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 		return false;
