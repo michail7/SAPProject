@@ -3,24 +3,23 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 
+public class FileManager implements IFileManager {
 
-public class FileManager implements IFileManager{
-	
 	public String readFile(String fileName) {
 		StringBuilder sb = new StringBuilder();
 		try {
-			
+
 			FileReader fileReader = new FileReader(fileName);
-			
+
 			BufferedReader bufferedReader = new BufferedReader(fileReader);
-			
+
 			while (bufferedReader.ready()) {
-					String line = bufferedReader.readLine();
-					sb.append(line);
-					sb.append("\n");
+				String line = bufferedReader.readLine();
+				sb.append(line);
+				sb.append("\n");
 			}
-			bufferedReader.close();			
-			
+			bufferedReader.close();
+
 		} catch (Exception e) {
 			System.out.println("Error while reading a file.");
 			System.out.println(e.getMessage());
@@ -31,15 +30,15 @@ public class FileManager implements IFileManager{
 
 	@Override
 	public void writeToFile(String fileName, String line) {
-		try {			
+		try {
 			FileWriter fileStream = new FileWriter(fileName, true);
-			
-			BufferedWriter writer = new BufferedWriter(fileStream);		
-			
+
+			BufferedWriter writer = new BufferedWriter(fileStream);
+
 			writer.write(line);
 			writer.newLine();
 			writer.close();
-			
+
 		} catch (Exception e) {
 			System.out.println("Error while writing a file.");
 			System.out.println(e.getMessage());
